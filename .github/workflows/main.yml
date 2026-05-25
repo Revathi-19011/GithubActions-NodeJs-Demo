@@ -12,24 +12,19 @@ on:
                     - windows-latest
                     - macos-
             job-name:
-                description: 'Choose the job to run'
+                description: 'Enter multiple jobs names to execute (comma-separated)'
                 required: true
-                default: 'build'
-                type: choice
-                options:
-                    - build-job
-                    - test-job
-                    - deploy-job
+                type: string
 jobs:
     Build-job:
-        if: ${{ github.event.inputs['job-name'] == 'build-job' }}
+        if: contains( github.event.inputs.job-name, 'build-job' )
         runs-on: ${{ github.event.inputs.runner}}
         steps:
             - name: Build step
               run: echo "Running build job on ${{github.event.inputs.runner}}"
 
     Test-job:
-        if: ${{ github.event.inputs['job-name'] == 'test-job' }}
+        if: contains( github.event.inputs.job-name, 'testjob' )
         runs-on: ${{ github.event.inputs.runner}}
         steps:
             - name: Test step
@@ -37,7 +32,7 @@ jobs:
             
 
     Deploy-job:
-        if: ${{ github.event.inputs['job-name'] == 'deploy-job' }}
+        if: contains( github.event.inputs.job-name, 'deploy-job' )
         runs-on: ${{ github.event.inputs.runner}}
         steps:
             - name: Deploy step
