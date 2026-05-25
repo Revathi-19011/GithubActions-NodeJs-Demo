@@ -1,39 +1,26 @@
-name: Multiple runners and choose the jobs
-on: 
-    workflow_dispatch:
-        inputs:
-            runner:
-                description: 'Choose the runner to run the job'
-                required: true
-                default: 'ubuntu-latest'
-                type: choice
-                options:
-                    - ubuntu-latest
-                    - windows-latest
-                    - macos-
-            job-name:
-                description: 'Enter multiple jobs names to execute (comma-separated)'
-                required: true
-                type: string
+name: Build nodejs application using github actions
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
 jobs:
-    Build-job:
-        if: contains( github.event.inputs.job-name, 'build-job' )
-        runs-on: ${{ github.event.inputs.runner}}
-        steps:
-            - name: Build step
-              run: echo "Running build job on ${{github.event.inputs.runner}}"
+  buildnodejs:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-    Test-job:
-        if: contains( github.event.inputs.job-name, 'test-job' )
-        runs-on: ${{ github.event.inputs.runner}}
-        steps:
-            - name: Test step
-              run: echo "Running test job on ${{github.event.inputs.runner}}"
-            
+      - name: Install nodejs of version 18 and npm
+        uses: actions/setup-node@v6
+        with: 
+          node-version: 18
+     
+      - name: Install dependencies using npm
+        run: npm install
 
-    Deploy-job:
-        if: contains( github.event.inputs.job-name, 'deploy-job' )
-        runs-on: ${{ github.event.inputs.runner}}
-        steps:
-            - name: Deploy step
-              run: echo "Running deploy job on ${{github.event.inputs.runner}}"
+      - name: Run tests using npm
+        run: npm test
+
+      - name: Build the application usig npm
+        run: npm run build
