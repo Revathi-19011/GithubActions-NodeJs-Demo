@@ -24,7 +24,7 @@ jobs:
               run: echo "Running build job on ${{github.event.inputs.runner}}"
 
     Test-job:
-        if: contains( github.event.inputs.job-name, 'testjob' )
+        if: contains( github.event.inputs.job-name, 'test-job' )
         runs-on: ${{ github.event.inputs.runner}}
         steps:
             - name: Test step
