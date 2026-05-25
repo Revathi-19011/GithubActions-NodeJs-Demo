@@ -1,39 +1,44 @@
-name: Build nodejs application using github actions
+name: Multiple runners and choose jobs
 on: 
-  push:
-    branches: 
-      - master
-  workflow_dispatch:
+    workflow_dispatch:
+        inputs:
+            runner:
+                description: 'Choose the runner to run the job'
+                required: true
+                default: 'ubuntu-latest'
+                type: choice
+                options:
+                    - ubuntu-latest
+                    - windows-latest
+                    - macos-
+            job-name:
+                description: 'Choose the job to run'
+                required: true
+                default: 'build'
+                type: choice
+                options:
+                    - build-job
+                    - test-job
+                    - deploy-job
 jobs:
-  buildnodejs:
-    continue-on-error: true
-    strategy:
-      matrix:
-        node-version: [12, 16, 18, 20]
-        operating-system: [ubuntu-latest, windows-latest]
-        exclude:
-          - node-version: 12
-            operating-system: windows-latest
-          - node-version: 12
-            operating-system: ubuntu-latest
-        include:
-          - node-version: 18
-            operating-system: ubuntu-22.04
-    runs-on: ${{ matrix.operating-system }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-      
-      - name: Install nodejs of version ${{matrix.node-version}} and npm
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ matrix.node-version }}
+    Build-job:
+        if: ${{ github.event.inputs['job-name'] == 'build-job' }}
+        runs-on: ${{ github.event.inputs.runner}}
+        steps:
+            - name: Build step
+              run: echo "Running build job on ${{github.event.inputs.runner}}"
 
-      - name: Install dependencies  using npm
-        run: npm install
+    Test-job:
+        if: ${{ github.event.inputs['job-name'] == 'test-job' }}
+        runs-on: ${{ github.event.inputs.runner}}
+        steps:
+            - name: Test step
+              run: echo "Running test job on ${{github.event.inputs.runner}}"
+            
 
-      - name: Run tests using npm
-        run: npm test
-      
-      - name: Build the application using npm
-        run: npm run build
+    Deploy-job:
+        if: ${{ github.event.inputs['job-name'] == 'deploy-job' }}
+        runs-on: ${{ github.event.inputs.runner}}
+        steps:
+            - name: Deploy step
+              run: echo "Running deploy job on ${{github.event.inputs.runner}}"
